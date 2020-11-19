@@ -1,3 +1,6 @@
+import * as fs from "fs";
+import { join } from "path";
+
 import { logger } from "./utils/logger";
 
 const numberFromEnvVar = (
@@ -40,4 +43,13 @@ if (
   sftpUsernames.length === sftpPasswords.length
 ) {
   logger.info("No usernames or passwords specified or length does not match");
+}
+
+export const rootDir =
+  process.env.SFTP_ROOT_DIR || join(__dirname, "..", "sftp-server-files");
+
+if (!fs.existsSync(rootDir)) {
+  throw new Error(
+    `SFTP root dir does not exist, please create it or change the "SFTP_ROOT_DIR" variable. Looking at: [${rootDir}]`
+  );
 }
