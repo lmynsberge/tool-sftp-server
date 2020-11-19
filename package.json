@@ -24,6 +24,7 @@
     "@types/mocha": "5.2.7",
     "@types/sinon": "7.0.13",
     "@types/sinon-chai": "3.2.3",
+    "@types/uuid": "8.3.0",
     "@typescript-eslint/eslint-plugin": "4.8.1",
     "@typescript-eslint/parser": "4.8.1",
     "chai": "4.2.0",
@@ -45,6 +46,7 @@
     "express": "^4.17.1",
     "lodash": "4.17.20",
     "mllp-node": "2.0.0",
-    "ssh2-sftp-client": "4.0.4"
+    "ssh2-sftp-client": "4.0.4",
+    "uuid": "8.3.1"
   }
 }
