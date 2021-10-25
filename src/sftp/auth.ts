@@ -3,7 +3,7 @@ import * as ssh2 from "ssh2";
 import { logger } from "../utils/logger";
 
 const allowedUser = Buffer.from("10x-redoxengine");
-const allowedPassword = Buffer.from("R3d0x&bdjklrt1138");
+const allowedPassword = Buffer.from("fill-in");
 
 /**
  * Currently only really works with no password and no password setup is supported
