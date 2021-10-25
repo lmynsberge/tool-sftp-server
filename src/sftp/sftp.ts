@@ -5,6 +5,7 @@ import { Attributes, FileEntry, SFTPStream } from "ssh2-streams";
 
 import { logger } from "../utils/logger";
 import { noHandler } from "./common";
+import { join } from 'path';
 
 var openFiles: {
   [id: string]: { stream: Stream; fileHandle: string };
@@ -24,6 +25,7 @@ export const addSftpStreamHandlers = (sftpStream: SFTPStream) => {
   sftpStream.on("REALPATH", realPathHandler(sftpStream));
   sftpStream.on("READLINK", noHandler("SFTPStream:readlink"));
   sftpStream.on("LSTAT", noHandler("SFTPStream:lstat"));
+  sftpStream.on("STAT", statHandler(sftpStream));
   sftpStream.on("error", (err: any) => {
     logger.info(`Error from sftp is: ${err}`);
   });
@@ -166,6 +168,34 @@ const fstatHandler = (sftpStream: SFTPStream) => (
     });
   });
 };
+
+const statHandler = (sftpStream: SFTPStream) => (
+  reqId: number,
+  handle: Buffer
+) => {
+  logger.info("in stat");
+  logger.info(`Trying to stat: ${handle}`);
+  let handleString = handle.toString();
+  const rootDir = join(__dirname, '..', '..', 'sftp-server-files');
+  handleString = join(rootDir, handleString);
+  fs.stat(handleString, (err, stats) => {
+    if (err) {
+      logger.debug(`stat error: ${err}`)
+      return sftpStream.status(reqId, ssh2.SFTP_STATUS_CODE.FAILURE);
+    }
+    const sftpStats: Attributes = {
+      mode: stats.mode,
+      uid: stats.uid,
+      gid: stats.gid,
+      size: stats.size,
+      atime: stats.atime.valueOf(),
+      mtime: stats.mtime.valueOf(),
+    };
+    logger.info(JSON.stringify(sftpStats));
+    sftpStream.attrs(reqId, sftpStats);
+  });
+};
+
 const readDirHandler = (sftpStream: SFTPStream) => (
   reqId: number,
   handle: Buffer
@@ -248,7 +278,7 @@ const renameHandler = (sftpStream: SFTPStream) => (
   try {
     fs.renameSync(oldPath, newPath);
     sftpStream.status(reqId, ssh2.SFTP_STATUS_CODE.OK);
-  } catch (err) {
+  } catch (err: any) {
     sftpStream.status(reqId, ssh2.SFTP_STATUS_CODE.FAILURE, err.message);
   }
 };
@@ -354,7 +384,7 @@ const realPathHandler = (sftpStream: SFTPStream) => (
         },
       ]);
     }
-  } catch (err) {
+  } catch (err: any) {
     logger.info(`Real path error: ${JSON.stringify(err)}`);
     sftpStream.status(reqId, ssh2.SFTP_STATUS_CODE.FAILURE, err.message);
   }
