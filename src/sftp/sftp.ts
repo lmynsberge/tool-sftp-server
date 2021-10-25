@@ -278,7 +278,7 @@ const renameHandler = (sftpStream: SFTPStream) => (
   try {
     fs.renameSync(oldPath, newPath);
     sftpStream.status(reqId, ssh2.SFTP_STATUS_CODE.OK);
-  } catch (err) {
+  } catch (err: any) {
     sftpStream.status(reqId, ssh2.SFTP_STATUS_CODE.FAILURE, err.message);
   }
 };
@@ -384,7 +384,7 @@ const realPathHandler = (sftpStream: SFTPStream) => (
         },
       ]);
     }
-  } catch (err) {
+  } catch (err: any) {
     logger.info(`Real path error: ${JSON.stringify(err)}`);
     sftpStream.status(reqId, ssh2.SFTP_STATUS_CODE.FAILURE, err.message);
   }
